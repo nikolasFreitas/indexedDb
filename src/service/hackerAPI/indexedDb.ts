@@ -22,8 +22,6 @@ export default async function indexedDbOperations() {
   const db: IDBDatabase = await config(DB_NAME, tableFactory);
 
   async function saveItems(items: THackerData[]): Promise<boolean> {
-    console.log(db.objectStoreNames.length);
-    
     const trx = db.transaction(HACKER_PROFILE, 'readwrite');
     const objStore = trx.objectStore(HACKER_PROFILE);
     items.forEach((item) => {
@@ -37,7 +35,6 @@ export default async function indexedDbOperations() {
     const result = new Promise<boolean>((resolve, reject) => {
       trx.oncomplete = () => {
         resolve(true);
-        console.log("DEU CERTIN!");
       };
       trx.onerror = (e: any) => {
         const error = new Error(
@@ -51,8 +48,16 @@ export default async function indexedDbOperations() {
   }
 
   // @TODO
-  function isStoreEmpty(): boolean {
-    return true;
+  async function isStoreEmpty(): Promise<boolean> {
+    const trx = db.transaction(HACKER_PROFILE, 'readwrite');
+    const objStore = trx.objectStore(HACKER_PROFILE);
+    const request = objStore.count();
+
+    return new Promise((resolve) => {
+      request.onsuccess = () => {
+        resolve(!request.result);
+      };
+    });
   }
 
   function isDbCreated(database = db): Boolean {

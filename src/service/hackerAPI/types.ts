@@ -1,5 +1,3 @@
-import { Interface } from "readline";
-
 export type THackerData = {
   author: string,
   phrase: string,
