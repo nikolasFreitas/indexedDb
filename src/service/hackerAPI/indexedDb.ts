@@ -21,7 +21,7 @@ export default async function indexedDbOperations() {
   const HACKER_PROFILE = 'HACKER_PROFILE';
   const db: IDBDatabase = await config(DB_NAME, tableFactory);
 
-  async function saveItems(items: THackerData[]): Promise<boolean> {
+  function saveItems(items: THackerData[]): Promise<boolean> {
     const trx = db.transaction(HACKER_PROFILE, 'readwrite');
     const objStore = trx.objectStore(HACKER_PROFILE);
     items.forEach((item) => {
@@ -47,8 +47,7 @@ export default async function indexedDbOperations() {
     return result;
   }
 
-  // @TODO
-  async function isStoreEmpty(): Promise<boolean> {
+  function isStoreEmpty(): Promise<boolean> {
     const trx = db.transaction(HACKER_PROFILE, 'readwrite');
     const objStore = trx.objectStore(HACKER_PROFILE);
     const request = objStore.count();
@@ -80,8 +79,17 @@ export default async function indexedDbOperations() {
     });
   }
 
+  function getAllData(cb?: (e: any) => void) {
+    const store = db.transaction(HACKER_PROFILE, 'readonly').objectStore(HACKER_PROFILE);
+    const operation = store.getAll();
+    return new Promise((resolve) => {
+      operation.onsuccess = cb || (() => resolve(operation.result));
+    });
+  }
+
   return {
     isStoreEmpty,
     saveItems,
+    getAllData,
   };
 }
